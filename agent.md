@@ -49,14 +49,14 @@
 │   │                 # generator.go, sequence.go, number.go, format.go
 │   └── interp/       # interp.go, expr.go, stmt.go, call.go, env.go, import.go,
 │                     # walk.go, async_check.go, errors.go
-└── module/           # 标准库（Go 实现）：registry.go, this.go, os.go, sys.go, pathlib.go
+└── module/           # 标准库（Go 实现）：registry.go, this.go, os.go, sys.go, pathlib.go, math.go, threading.go, subprocess.go
 ```
 
 - 解释器已完整实现：tree-walking `parser2` AST，无 cgo，入口 `main.go`，`go run .` 启动。
 - M0–M11 全部完成：运行时对象模型、求值核心、函数/闭包/生成器、类/异常/try-except、f-string/r-string/`%`、内置函数与全小写错误体系、async/await 致命预检、标准库注册表（this/os/sys/pathlib/math）、三级 import、CLI/traceback/退出码。
 - `demo.py` 全绿：`go run . demo.py` 退出码 0，输出与文件末尾期望注释逐行一致。
 - 验证：`gofmt -l .` 干净、`go vet ./...` 无告警、`go test ./...` 通过、`CGO_ENABLED=0 go build ./...` 成功。
-- 最近提交：`47405d5`；当前工作区有未提交内容（所有新增/修改文件均未提交）。
+- 最近提交：`8f78fb5`（新增 `math`/`threading`/`subprocess` 标准库并扩写 `README.md`）；工作区干净，但该提交尚未 push 到 origin/main。
 
 ---
 
@@ -89,7 +89,10 @@
 │   ├── this.go             # import this
 │   ├── os.go               # import os
 │   ├── sys.go              # import sys
-│   └── pathlib.go          # import pathlib
+│   ├── pathlib.go          # import pathlib
+│   ├── math.go             # import math（floor/ceil/sqrt 等）
+│   ├── threading.go        # import threading（Thread/Lock/RLock/Event）
+│   └── subprocess.go       # import subprocess（run/Popen）
 ├── gpython_modules/        # 项目依赖：第三方 .py，无需重新编译（已 gitignore）
 ├── internal/
 │   ├── object/             # 运行时对象：None/bool/int/float/str/list/tuple/dict/set
@@ -244,5 +247,5 @@ gpython 实现完成后，把上面第一行换成 `go run . demo.py`，期望�
 1. `go run .` 无参数时：**进入 REPL**（`>>> ` / `... ` 提示、EOF 退出、表达式打印 `repr`、多语句共享全局 env）；`demo.py` 需显式指定 `go run . demo.py` 运行。（已落地 `main.go`）
 2. `gpython_modules/` **需要 `__init__.py` 包支持**：`internal/interp/import.go` `findModuleFile` 已对 `deps`（`gpython_modules/`）与 `locals` 统一检查 `rel/__init__.py`，无需额外改动。
 3. `this`：**打印 Zen of Python**，行为与 CPython 标准库一致，import 时自动打印 ROT13 内容。（已落地 `module/this.go`，`demo.py` 已通过）
-4. 标准库：**已补 `math`**（`module/math.go`，floor/ceil/sqrt 等），`demo.py` 第 1 节全部通过。第二阶段（M12 后续）计划新增 `threading`、`subprocess`。
+4. 标准库：`math`（`module/math.go`，floor/ceil/sqrt 等）、`threading`（`module/threading.go`）、`subprocess`（`module/subprocess.go`）均已落地，`demo.py` 第 1 节全部通过。（已落地，见提交 8f78fb5）
 5. `module/` 模块工厂与 `internal/object` 的接口边界：已定稿，`module` 只依赖 `internal/object`，避免循环依赖。

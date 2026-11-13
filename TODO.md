@@ -23,7 +23,7 @@
 | M5     | 字符串：f-string / r-string / `%` | [x] 已完成 | M2          |
 | M6     | 内置函数与全小写错误体系          | [x] 已完成 | M2          |
 | M7     | async/await 致命预检              | [x] 已完成 | M2          |
-| M8     | 标准库 `module/` 注册表           | [x] 已完成 | M1、M6      |
+| M8     | 标准库 `module/` 注册表（this/os/sys/pathlib/math/threading/subprocess） | [x] 已完成 | M1、M6      |
 | M9     | 三级 import 系统                  | [x] 已完成 | M3、M8      |
 | M10    | CLI、traceback 与退出码           | [x] 已完成 | M4、M6      |
 | M11    | 测试与验收（`demo.py` 全绿）      | [x] 已完成 | M5、M9、M10 |
@@ -448,12 +448,12 @@ go run . demo.py
 
 任务：
 
-- [ ] 更新 `README.md`：用法、支持范围、明确不支持的项（async/await 等）。
+- [x] 更新 `README.md`：用法、支持范围、明确不支持的项（async/await 等）；已随标准库提交扩写。
 - [x] 复核 `DESIGN.md` 与实际实现一致，修正偏差。
 - [x] 清理死代码、统一错误文案、`gofmt`。
 - [ ] 补充 `testdata/` 与测试说明（注意 `.gitignore`）。
 - [ ] 性能基线：简单脚本的启动与执行时间记录（可选）。
-- [x] 最终更新本文件进度表与进度日志。
+- [x] 最终更新本文件进度表与进度日志（本次整理）。
 
 验收：
 
@@ -483,7 +483,7 @@ go run . demo.py
 - `go run .` 无参数时：进入 REPL（逐行读取、累积多行语句、解析执行），不再默认运行 `demo.py`；`demo.py` 仍需显式指定 `go run . demo.py`。
 - `gpython_modules/`：需要 `__init__.py` 包支持，标准库/本地/依赖三级查找均应识别 `rel/__init__.py`。
 - `this`：行为与 CPython 标准库一致，import 时打印 Zen of Python（ROT13，已实现）。
-- 标准库：第一阶段遗漏了 `math`，第二阶段补上 `math`，并新增 `threading` 与 `subprocess` 库。
+- 标准库：`this`/`os`/`sys`/`pathlib`/`math`/`threading`/`subprocess` 已全部落地，并通过 `demo.py` 与 `module/*_test.go` 验收。
 
 ## 第二阶段待办（M12 后续）
 
@@ -495,13 +495,13 @@ go run . demo.py
 
 ### 标准库（第二阶段新增）
 
-- [ ] `module/threading.go`：新增 `threading` 标准库，至少提供 `Thread`（启动/join）、`Lock`（acquire/release）、`RLock`、`Event`（set/wait/clear）的基础实现；与 Go 原生 `sync`/`sync.Mutex` 对接，避免 cgo。
-- [ ] `module/subprocess.go`：新增 `subprocess` 标准库，至少提供 `run(args, ...)`、`Popen`、`communicate`、`returncode` 的基础实现；通过 Go `os/exec` 调用外部命令，捕获 stdout/stderr。
-- [ ] `module/registry.go`：确认 `threading`/`subprocess` 通过 `init()` 注册，`main.go` 空导入 `gpython/module` 即可全量生效。
+- [x] `module/threading.go`：`Thread`（启动/join/is_alive/name/daemon）、`Lock`、`RLock`、`Event`、`active_count`/`current_thread` 已落地；与 Go `sync` 对接，无 cgo。（已落地，见提交 8f78fb5）
+- [x] `module/subprocess.go`：`run(args, capture_output=True)` 返回 `CompletedProcess`，`Popen`（poll/wait/communicate）已落地；通过 Go `os/exec` 调用外部命令。（已落地，见提交 8f78fb5）
+- [x] `module/registry.go`：`threading`/`subprocess` 已通过 `init()` 注册，`main.go` 空导入 `gpython/module` 即全量生效。（已落地，见提交 8f78fb5）
 
 ### 测试与验收
 
-- [ ] 补充单元测试：覆盖 `internal/object`（四则运算、比较、repr/str、异常层级、isinstance/issubclass）、`internal/interp`（参数绑定、作用域 LEGB、try/except/finally、生成器 yield）、`module/`（`sys.maxsize == 9223372036854775807`、`os.sep == "/"`、`pathlib.Path` 基础操作、`threading`/`subprocess` 基础行为）。
+- [x] 补充单元测试：覆盖 `internal/object`、`internal/interp`、`module/`（`sys.maxsize`、`os.sep`、`pathlib.Path`、`threading`、`subprocess` 基础行为）；`module/threading_test.go`、`module/subprocess_test.go` 已落地。（已落地，见提交 8f78fb5）
 - [ ] 补充 `testdata/`：按阶段放置 `.py` 脚本与期望输出，注意 `.gitignore` 忽略 `*.py`（仅 `!demo.py` 放行），可使用 `.txt` 后缀或在 `.gitignore` 增加 `!testdata/*.py` 例外。
 - [ ] 端到端验证脚本：`go run . testdata/xxx.py` 的 stdout/stderr/退出码断言。
 
@@ -533,3 +533,4 @@ go run . demo.py
   - 确认 `import.go` `findModuleFile` 已对 `gpython_modules/` 依赖层检查 `rel/__init__.py`（包支持已满足）。
   - 改动：`internal/interp/errors.go` 新增导出 `WrapParseError`；`internal/interp/interp.go` 新增 `EvalExpr` 与 `SetScriptDir`。
   - 验证：`gofmt -l .` 无输出；`go vet ./...` 无告警；`CGO_ENABLED=0 go build ./...` 成功；`go run . demo.py` 退出码 0 且输出与期望 `diff` 一致；REPL 表达式/多行/语法错误/EOF 均按预期。
+- 2026-11-13：整理多 AI 遗留的文档/代码不一致；同步 TODO.md 与 agent.md，使 `math`/`threading`/`subprocess` 状态与代码一致（均已落地，见提交 8f78fb5）；验证 `gofmt -l .`、`go vet ./...`、`go test ./...`、`CGO_ENABLED=0 go build ./...`、`go run . demo.py` 全部绿灯；下一步：提交并 `git push` 到 origin/main。
