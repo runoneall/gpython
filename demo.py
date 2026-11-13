@@ -215,6 +215,20 @@ assert first.number == 1
 assert second.number == 2
 assert Counter.created == 2
 
+
+class Greeter:
+    def __init__(self, prefix):
+        self.prefix = prefix
+
+    def __call__(self, name):
+        return self.prefix + ", " + name
+
+
+greeter = Greeter("hi")
+print("   call =", greeter("world"))
+
+assert greeter("world") == "hi, world"
+
 print("4. try/except")
 
 
@@ -567,6 +581,7 @@ print("all acceptance checks passed")
 #    rex says woof!
 #    named:rex
 #    counter = 2
+#    call = hi, world
 # 4. try/except
 #    4.0
 #    caught: division by zero

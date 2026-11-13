@@ -558,3 +558,7 @@ go run . demo.py
   - 改动：`TODO.md` 进度表中 M12 状态 `[~] 进行中` → `[x] 已完成`（与 M12 节任务及进度日志一致）；`DESIGN.md` 第 2 节“仓库现状”标注为“初始状态快照”，避免与当前已实现代码混淆。
   - 验证：`gofmt -l .` 无输出；`go vet ./...` 无告警；`go test ./...` 全部 ok；`CGO_ENABLED=0 go build ./...` 成功；`go run . demo.py` 退出码 0、stderr 为空，且输出与期望注释逐行一致。
   - 下一步：无（M0–M12 均已完成）。
+- 2026-11-13：在 demo.py 补充 `__call__` 验收演示。
+  - 改动：`demo.py` class 部分新增 `Greeter` 类（含 `__init__` 与 `__call__`），实例化并调用 `greeter("world")`，输出 `call = hi, world`；同步更新文件末尾期望输出注释块。
+  - 验证：`go run . demo.py` 实际输出与期望注释逐行一致（含 `call = hi, world`），退出码 0、stderr 为空；`gofmt -l .`、`go vet ./...`、`go test ./...`、`CGO_ENABLED=0 go build ./...` 全部绿灯；`__call__` 独立脚本及 async/语法/运行时/REPL/sys.argv/gpython_modules 行为均按预期。
+  - 下一步：无。

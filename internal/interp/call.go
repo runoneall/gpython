@@ -115,6 +115,21 @@ func (i *Interpreter) Call(callee object.Object, args []object.Object, kwargs ma
 		return i.callFunction(c, args, kwargs)
 	case *object.Class:
 		return i.callClass(c, args, kwargs)
+	case *object.Instance:
+		// 实例若定义了 __call__，则可调用：m() 等价于 type(m).__call__(m)。
+		// 将 __call__ 绑定到实例（如同方法），再递归调用，复用 BoundMethod 分支。
+		callAttr, ok := c.Class.Lookup("__call__")
+		if !ok {
+			return nil, object.Raisef(object.TypeErrorClass, "'%s' object is not callable", c.TypeName())
+		}
+		if fn, ok := callAttr.(*object.Function); ok {
+			bound := &object.BoundMethod{Fn: fn, Self: c}
+			return i.Call(bound, args, kwargs)
+		}
+		if cc, ok := callAttr.(object.Callable); ok {
+			return cc.Call(i, args, kwargs)
+		}
+		return nil, object.Raisef(object.TypeErrorClass, "'%s' object is not callable", c.TypeName())
 	case object.Callable:
 		return c.Call(i, args, kwargs)
 	}
