@@ -570,3 +570,7 @@ go run . demo.py
   - 改动：`DESIGN.md` 第 8 节将“REPL 留作后续增强”改为“已实现 REPL”；第 12 节“下一步”改为“所有里程碑 M0–M12 均已完成，原计划保留为历史记录”。`TODO.md` 全局验收标准第 2 点补充 `math`/`threading`/`subprocess`；第二阶段待办中 README 完善、最终验收全部绿灯改为 `[x]`。
   - 验证：`gofmt -l .` 无输出；`go vet ./...` 无告警；`go test ./...` 全部 ok；`CGO_ENABLED=0 go build ./...` 成功；`go run . demo.py` 退出码 0、stderr 为空，且输出与期望注释逐行一致。
   - 下一步：无。
+- 2026-11-13：补齐 demo.py 演示覆盖与 testdata/ 测试全面性。
+  - 改动：`demo.py` 新增 `issubclass`、`nonlocal`、`del` 演示与断言，并同步更新末尾 `# Expected output` 注释块（含 os.path / sys.modules / 1.5. builtins 结果）。新增 `testdata/m1_imports.py`（标准库+本地导入，配套 `m1_helper.py`）、`testdata/m3_generator.py`（yield/next/StopIteration/生成器表达式）、`testdata/m6_lambda_ternary.py`（lambda/三元/闭包）、`testdata/m7_control_flow.py`（if-elif-else/for/while/break/continue）。
+  - 验证：`gofmt -l .` 无输出；`go vet ./...` 无告警；`go test ./...` 全部 ok；`CGO_ENABLED=0 go build ./...` 成功；`go run . demo.py` 退出码 0、stdout 与期望注释逐行一致；全部 7 个 testdata 脚本退出码 0。
+  - 下一步：无。

@@ -34,6 +34,54 @@ assert isinstance(math.pi, float)
 assert os.sep == "/"
 assert sys.maxsize == 9223372036854775807
 
+
+import this
+
+print("   os.path.join =", os.path.join("a", "b"))
+print("   os.path.exists . =", os.path.exists("."))
+print("   os.path.isfile demo.py =", os.path.isfile("demo.py"))
+print("   os.path.isdir internal =", os.path.isdir("internal"))
+print("   os.path.basename a/b/c.py =", os.path.basename("a/b/c.py"))
+print("   os.path.dirname a/b/c.py =", os.path.dirname("a/b/c.py"))
+print("   'sys' in sys.modules =", "sys" in sys.modules)
+print("   'os' in sys.modules =", "os" in sys.modules)
+
+
+print("1.5. builtins")
+print("   issubclass(bool, int) =", issubclass(bool, int))
+print("   issubclass(int, object) =", issubclass(int, object))
+print("   issubclass(str, int) =", issubclass(str, int))
+
+
+def outer():
+    count = 0
+
+    def inner():
+        nonlocal count
+        count = count + 1
+        return count
+
+    return inner
+
+
+counter = outer()
+print("   nonlocal count1 =", counter())
+print("   nonlocal count2 =", counter())
+
+
+temp = 42
+del temp
+try:
+    temp
+except NameError:
+    print("   del name works = True")
+
+
+assert issubclass(bool, int) is False
+assert issubclass(int, object) is True
+assert issubclass(str, int) is False
+
+
 print("2. def")
 
 
@@ -561,6 +609,21 @@ print("all acceptance checks passed")
 #    alias works = 2
 #    os.sep = /
 #    sys.maxsize = 9223372036854775807
+#    os.path.join = a/b
+#    os.path.exists . = True
+#    os.path.isfile demo.py = True
+#    os.path.isdir internal = True
+#    os.path.basename a/b/c.py = c.py
+#    os.path.dirname a/b/c.py = a/b
+#    'sys' in sys.modules = True
+#    'os' in sys.modules = True
+# 1.5. builtins
+#    issubclass(bool, int) = False
+#    issubclass(int, object) = True
+#    issubclass(str, int) = False
+#    nonlocal count1 = 1
+#    nonlocal count2 = 2
+#    del name works = True
 # 2. def
 #    hello, world
 #    hi, gpython
