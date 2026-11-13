@@ -83,7 +83,9 @@ def tag(label):
     def decorator(fn):
         def wrapper(value):
             return label + str(fn(value))
+
         return wrapper
+
     return decorator
 
 
