@@ -549,3 +549,8 @@ go run . demo.py
   - 问题：`runREPL` 的 `isContinued` 仅判断行尾是否为 `:`，不跟踪缩进，导致嵌套函数/类（如 `def outer()` 含嵌套 `def inner()`）在第二层缩进块未结束时被过早执行，抛出 `unexpected token indent`。
   - 修复：引入缩进栈 `indentStack` 跟踪块起始缩进；新增 `indentLevel` 和 `shouldContinue`；空行或缩回至块外时先执行已累积块；以 `@` 开头的装饰器行继续读取，不立即执行；括号闭合且栈为空时立即执行。
   - 验证：REPL 中多行函数、嵌套函数、类、继承、装饰器、if/else、try/except、for 循环、跨行括号均可正确输入并执行；`gofmt -l .`、`go vet ./...`、`go test ./...`、`CGO_ENABLED=0 go build ./...`、`go run . demo.py` 全部绿灯。
+- 2026-11-13：补充 demo.py 装饰器验收演示。
+  - `demo.py` 中已有 `@double_result` 装饰 `increment`（输出 `decorated = 16`），演示较为隐蔽。
+  - 新增带参数装饰器 `tag(label)` 及被装饰函数 `twice`，输出 `tagged = ans: 42`，使装饰器语法与功能更明显。
+  - 同步更新文件末尾期望输出注释块。
+  - 验证：`go run . demo.py` 实际输出与期望注释逐行一致，退出码 0；`gofmt -l .`、`go vet ./...`、`go test ./...`、`CGO_ENABLED=0 go build ./...` 全部绿灯。

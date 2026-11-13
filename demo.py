@@ -79,6 +79,19 @@ def increment(value):
     return value + 1
 
 
+def tag(label):
+    def decorator(fn):
+        def wrapper(value):
+            return label + str(fn(value))
+        return wrapper
+    return decorator
+
+
+@tag("ans: ")
+def twice(value):
+    return value * 2
+
+
 def count_up(limit):
     value = 1
     while value <= limit:
@@ -100,6 +113,7 @@ print("   fibonacci(10) =", fibonacci(10))
 add_ten = make_adder(10)
 print("   closure =", add_ten(5))
 print("   decorated =", increment(7))
+print("   tagged =", twice(21))
 print("   count_up(3) =", list(count_up(3)))
 print("   evens =", list(evens([1, 2, 3, 4])))
 generator = count_up(2)
@@ -539,6 +553,7 @@ print("all acceptance checks passed")
 #    fibonacci(10) = 55
 #    closure = 15
 #    decorated = 16
+#    tagged = ans: 42
 #    count_up(3) = [1, 2, 3]
 #    evens = [2, 4]
 #    next = 1
