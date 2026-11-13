@@ -562,3 +562,7 @@ go run . demo.py
   - 改动：`demo.py` class 部分新增 `Greeter` 类（含 `__init__` 与 `__call__`），实例化并调用 `greeter("world")`，输出 `call = hi, world`；同步更新文件末尾期望输出注释块。
   - 验证：`go run . demo.py` 实际输出与期望注释逐行一致（含 `call = hi, world`），退出码 0、stderr 为空；`gofmt -l .`、`go vet ./...`、`go test ./...`、`CGO_ENABLED=0 go build ./...` 全部绿灯；`__call__` 独立脚本及 async/语法/运行时/REPL/sys.argv/gpython_modules 行为均按预期。
   - 下一步：无。
+- 2026-11-13：新增 DEVELOPMENT.md 开发者文档。
+  - 改动：新增 `DEVELOPMENT.md`，详写如何编写标准库（`module/`，`init()`+`Register`+`Factory func() *object.Module`、`object.NewBuiltin`、`object.Raisef`、依赖边界仅限 `internal/object`）以及如何编写项目依赖（`gpython_modules/`，单文件模块与包、`__init__.py`、`GPYTHONPATH`、三级导入查找顺序），并附快速检查清单。
+  - 验证：`gofmt -l .` 无输出；`CGO_ENABLED=0 go build ./...` 成功；`go run . demo.py` 退出码 0、stderr 为空，且输出与期望注释逐行一致（.md 文件不影响 Go 编译）。
+  - 下一步：无（M0–M12 均已完成）。
