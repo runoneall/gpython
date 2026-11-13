@@ -76,6 +76,11 @@ func handleError(err error) int {
 
 // runREPL enters an interactive read-eval-print loop. It exits on EOF
 // (Ctrl-D) with code 0.
+//
+// Multi-line compound statements (def, class, if, for, try, …) are
+// accumulated until the indentation stack unwinds: a line whose indent is
+// not deeper than the enclosing block's indent ends the block. An empty
+// line also ends the current block.
 func runREPL() int {
 	i := interp.New()
 	i.SetScriptDir(cwdOr(""))
@@ -91,6 +96,7 @@ func runREPL() int {
 
 	var buf strings.Builder
 	depth := 0
+	var indentStack []int // 缩进栈：栈顶是当前块的起始缩进级别
 
 	for {
 		if buf.Len() == 0 {
@@ -103,29 +109,126 @@ func runREPL() int {
 			return 0
 		}
 		line := scanner.Text()
-		if strings.TrimSpace(line) == "" && depth == 0 {
-			if buf.Len() > 0 {
-				if err := execBlock(i, env, buf.String()); err != nil {
-					fmt.Fprintln(os.Stderr, err.Error())
+		isBlank := strings.TrimSpace(line) == ""
+
+		cont := shouldContinue(line, depth, indentStack, buf.Len() > 0, isBlank)
+
+		if buf.Len() > 0 && !cont {
+			// 先执行已累积的完整块（不含当前行）
+			if err := execBlock(i, env, buf.String()); err != nil {
+				fmt.Fprintln(os.Stderr, err.Error())
+			}
+			buf.Reset()
+			depth = 0
+			indentStack = nil
+		}
+
+		if !cont {
+			// 当前行作为新块的开始（若非空）
+			if !isBlank {
+				buf.WriteString(line)
+				depth += netDepth(line)
+				trimmed := strings.TrimRight(line, " \t")
+				if strings.HasSuffix(trimmed, ":") {
+					indentStack = append(indentStack, indentLevel(line))
+					continue
 				}
-				buf.Reset()
+				if depth == 0 {
+					// 单行语句，立即执行
+					if err := execBlock(i, env, buf.String()); err != nil {
+						fmt.Fprintln(os.Stderr, err.Error())
+					}
+					buf.Reset()
+					depth = 0
+					indentStack = nil
+				}
+				// depth != 0：跨行括号表达式，继续读下一行
 			}
 			continue
 		}
+
+		// 继续读，累积当前行
 		if buf.Len() > 0 {
 			buf.WriteByte('\n')
 		}
 		buf.WriteString(line)
 		depth += netDepth(line)
-		if isContinued(line, depth) {
-			continue
+
+		// 更新缩进栈：弹出 curIndent <= 栈顶的已结束块
+		curIndent := indentLevel(line)
+		for len(indentStack) > 0 && curIndent <= indentStack[len(indentStack)-1] {
+			indentStack = indentStack[:len(indentStack)-1]
 		}
-		if err := execBlock(i, env, buf.String()); err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
+		if strings.HasSuffix(strings.TrimRight(line, " \t"), ":") {
+			indentStack = append(indentStack, curIndent)
 		}
-		buf.Reset()
-		depth = 0
+
+		// 如果括号已闭合且无未结束的缩进块，且不是装饰器行，
+		// 立即执行（装饰器行需等待随后的 def/class）。
+		if depth == 0 && len(indentStack) == 0 &&
+			!strings.HasPrefix(strings.TrimLeft(line, " \t"), "@") {
+			if err := execBlock(i, env, buf.String()); err != nil {
+				fmt.Fprintln(os.Stderr, err.Error())
+			}
+			buf.Reset()
+			indentStack = nil
+		}
 	}
+}
+
+// indentLevel 返回行首的缩进级别（空格数，制表符按 4 个空格计）。
+func indentLevel(line string) int {
+	n := 0
+	for _, c := range line {
+		if c == ' ' {
+			n++
+		} else if c == '\t' {
+			n += 4
+		} else {
+			break
+		}
+	}
+	return n
+}
+
+// shouldContinue 报告是否应继续读取下一行而非执行当前已累积的块。
+//
+// 继续读的情况：
+//   - 以 '@' 开头（装饰器，后面必须跟 def/class）；
+//   - depth != 0：括号/方括号/花括号未闭合；
+//   - 当前行缩进严格大于缩进栈栈顶（仍在块内）；
+//   - 栈为空且当前行以 ':' 结尾（新的复合语句头，期望缩进体）。
+//
+// 空行在已有缓冲内容或栈非空时由调用者负责先执行块（返回 false）。
+//
+// 返回 false 时，调用者应先执行 buf（不含当前行），再将当前行作为新块处理。
+func shouldContinue(line string, depth int, indentStack []int, hasBuf bool, isBlank bool) bool {
+	trimmed := strings.TrimLeft(line, " \t")
+	if strings.HasPrefix(trimmed, "@") {
+		return true
+	}
+	if depth != 0 {
+		return true
+	}
+	if isBlank {
+		return hasBuf || len(indentStack) > 0
+	}
+	curIndent := indentLevel(line)
+
+	// 模拟弹出：找到 curIndent 应该所在的栈位置
+	top := len(indentStack)
+	for top > 0 && curIndent <= indentStack[top-1] {
+		top--
+	}
+
+	if top == 0 {
+		// 栈为空（所有块都结束）：仅以 ':' 结尾时继续读
+		trimmed := strings.TrimRight(line, " \t")
+		return strings.HasSuffix(trimmed, ":")
+	}
+
+	// 栈非空，curIndent > 栈顶，继续读
+	return true
 }
 
 // execBlock parses one block of source and executes it in the persistent
@@ -188,17 +291,6 @@ func netDepth(line string) int {
 		}
 	}
 	return d
-}
-
-// isContinued reports whether the accumulator should keep reading more
-// lines: an unclosed bracket group, or a simple compound-statement header
-// whose last stripped line ends with ':'.
-func isContinued(line string, depth int) bool {
-	if depth != 0 {
-		return true
-	}
-	trimmed := strings.TrimRight(line, " \t")
-	return strings.HasSuffix(trimmed, ":")
 }
 
 func cwdOr(def string) string {

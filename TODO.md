@@ -545,3 +545,7 @@ go run . demo.py
   - 补充 `testdata/` 与测试说明：新增 `m2_basic.py`、`m4_classes.py`、`m5_strings.py` 三阶段冒烟脚本；`.gitignore` 放行 `!testdata/*.py`；单元测试覆盖 `internal/object`、`internal/interp`、`internal/builtins`、`module/`。
   - 性能基线：`go run . demo.py` real ~45 ms，`go run . testdata/m2_basic.py` real ~30 ms，均退出码 0。
   - 验收：`gofmt -l .`、`go vet ./...`、`go test ./...`、`CGO_ENABLED=0 go build ./...`、`go run . demo.py` 全部绿灯。
+- 2026-11-13：修复 REPL 多行函数/类输入缺陷。
+  - 问题：`runREPL` 的 `isContinued` 仅判断行尾是否为 `:`，不跟踪缩进，导致嵌套函数/类（如 `def outer()` 含嵌套 `def inner()`）在第二层缩进块未结束时被过早执行，抛出 `unexpected token indent`。
+  - 修复：引入缩进栈 `indentStack` 跟踪块起始缩进；新增 `indentLevel` 和 `shouldContinue`；空行或缩回至块外时先执行已累积块；以 `@` 开头的装饰器行继续读取，不立即执行；括号闭合且栈为空时立即执行。
+  - 验证：REPL 中多行函数、嵌套函数、类、继承、装饰器、if/else、try/except、for 循环、跨行括号均可正确输入并执行；`gofmt -l .`、`go vet ./...`、`go test ./...`、`CGO_ENABLED=0 go build ./...`、`go run . demo.py` 全部绿灯。
