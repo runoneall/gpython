@@ -29,7 +29,9 @@
 
 ---
 
-## 2. 仓库现状
+## 2. 仓库现状（初始状态快照）
+
+本节记录项目在信息收集与设计阶段（2026-11-13 开工前）的初始状态，供回溯参考。当前仓库已按本文档及 TODO.md 完成全部里程碑，不再反映下面描述的“空骨架”状态。
 
 ```text
 /home/PartXI/gpython
@@ -41,7 +43,7 @@
 └── demo.py         # 最终验收演示脚本（.gitignore 中例外保留）
 ```
 
-其他事实：
+其他事实（初始状态）：
 
 - Git 工作区干净，最近提交为 `e2364c0 Add initial project files...`。
 - `go.mod` 目前还没有 require `github.com/tamnd/gopapy/v2`。
