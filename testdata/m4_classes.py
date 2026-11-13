@@ -3,8 +3,10 @@ class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+
     def dist(self):
         return (self.x * self.x + self.y * self.y) ** 0.5
+
 
 p = Point(3, 4)
 print(p.dist())
@@ -19,13 +21,16 @@ try:
 except NameError:
     print("caught name error")
 
+
 class Animal:
     def speak(self):
         return "animal sound"
 
+
 class Dog(Animal):
     def speak(self):
         return "woof"
+
 
 d = Dog()
 print(d.speak())
