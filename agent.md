@@ -41,7 +41,7 @@
 ├── go.sum
 ├── main.go           # CLI：脚本模式 / REPL 模式、参数、退出码、traceback、SystemExit、panic recover
 ├── DESIGN.md         # 需求与设计依据（source of truth）
-├── TODO.md           # M0–M12 分阶段计划与进度（已全部勾选 M0–M11）
+├── TODO.md           # M0–M12 分阶段计划与进度（已全部勾选 M0–M12）
 ├── agent.md          # 本文件
 ├── demo.py           # 最终验收脚本（.gitignore 例外保留，末尾注释块是期望输出）
 ├── internal/
@@ -53,7 +53,7 @@
 ```
 
 - 解释器已完整实现：tree-walking `parser2` AST，无 cgo，入口 `main.go`，`go run .` 启动。
-- M0–M11 全部完成：运行时对象模型、求值核心、函数/闭包/生成器、类/异常/try-except、f-string/r-string/`%`、内置函数与全小写错误体系、async/await 致命预检、标准库注册表（this/os/sys/pathlib/math）、三级 import、CLI/traceback/退出码。
+- M0–M12 全部完成：运行时对象模型、求值核心、函数/闭包/生成器、类/异常/try-except、f-string/r-string/`%`、内置函数与全小写错误体系、async/await 致命预检、标准库注册表（this/os/sys/pathlib/math/threading/subprocess）、三级 import、CLI/traceback/退出码。
 - `demo.py` 全绿：`go run . demo.py` 退出码 0，输出与文件末尾期望注释逐行一致。
 - 验证：`gofmt -l .` 干净、`go vet ./...` 无告警、`go test ./...` 通过、`CGO_ENABLED=0 go build ./...` 成功。
 - 最近提交：`8f78fb5`（新增 `math`/`threading`/`subprocess` 标准库并扩写 `README.md`）；工作区干净，但该提交尚未 push 到 origin/main。

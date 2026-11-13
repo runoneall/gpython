@@ -590,10 +590,8 @@ demo.py:12:1: notimplementederror: async/await is not supported
 
 ## 8. 命令行与启动方式
 
-计划：
-
 ```bash
-go run .                 # 按约定运行默认脚本（见下方待确认项）
+go run .                 # 不带参数时进入 REPL（>>> / ... 提示，EOF 退出码 0）
 go run . demo.py         # 运行指定脚本
 go run . demo.py arg1    # 脚本参数进入 sys.argv
 ```
@@ -603,11 +601,7 @@ go run . demo.py arg1    # 脚本参数进入 sys.argv
 - 文件不存在：输出小写错误并以退出码 1 结束。
 - 顶层未捕获异常：打印 traceback，退出码 1。
 - 不支持在启动时指定多个脚本。
-- 可选的交互式 REPL（逐行解析 `ParseExpression` 或累积 `ParseFile`）留作后续增强。
-
-### 待确认项（已决）
-
-`go run .` 不带参数时进入 REPL（逐行读取、累积多行语句、解析执行）；`demo.py` 需显式指定 `go run . demo.py` 运行。
+- 交互式 REPL：逐行读取、累积多行语句、解析执行，表达式打印 `repr`，EOF（Ctrl-D）退出码 0。
 
 ---
 
@@ -679,7 +673,9 @@ go run .
 
 ## 12. 下一步
 
-信息收集与设计已完成并固化在本文件。等待下一步指令后，再按以下顺序实现：
+所有里程碑（M0–M12）均已完成，实现与本设计文档一致。本节保留作为历史记录。
+
+原计划实现顺序（均已落地）：
 
 1. 添加依赖并建立运行时对象模型（含 `Generator` 对象）。
 2. 实现表达式/语句求值与作用域，支持 `return`/`yield`。

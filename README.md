@@ -55,8 +55,9 @@ Native modules registered in `module/registry.go`:
 
 - `sys` — `argv`, `path`, `maxsize`, `modules`, `version`, `platform`, `exit`,
   `sys.modules` (a dict mirroring the interpreter module cache).
-- `os` / `os.path` — environ, `getcwd`, `chdir`, `listdir`, `mkdir`, `remove`,
-  `rmdir`, `rename`, `stat`, `path.join/split/abspath/...`.
+- `os` / `os.path` — `environ`, `getcwd`, `listdir`, `mkdir`, `remove`,
+  `os.path.join`, `exists`, `isfile`, `isdir`, `basename`, `dirname`,
+  `abspath`.
 - `pathlib` — `Path`/`PurePath`/`cwd()`, `/` operator, `name`/`parent`/
   `suffix`/`stem`, `exists`/`is_file`/`is_dir`, `joinpath`, `as_posix`,
   `absolute`, `resolve`.
@@ -77,10 +78,10 @@ in both the dependency and local lookup layers).
 
 ## Builtins
 
-`print`, `len`, `isinstance`, `repr`, `abs`, `min`, `max`, `sum`, `sorted`,
-`enumerate`, `zip`, `next`, `iter`, `super`, `callable`, `hasattr`,
-`getattr`/`setattr`, `ord`/`chr`/`round`/`hash`, plus the exception classes and
-`None`/`True`/`False`.
+`print`, `len`, `isinstance`, `issubclass`, `repr`, `abs`, `min`, `max`, `sum`,
+`sorted`, `enumerate`, `zip`, `next`, `iter`, `super`, `callable`, `hasattr`,
+`getattr`/`setattr`, `ord`/`chr`/`round`/`hash`, plus `Ellipsis`, the exception
+classes and `None`/`True`/`False`.
 
 ## Design notes
 

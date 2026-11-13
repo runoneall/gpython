@@ -470,7 +470,7 @@ go run . demo.py
 ## 全局验收标准（Definition of Done）
 
 1. `go run .` 与 `go run . demo.py` 可运行，`demo.py` 输出与期望逐行一致，退出码 0。
-2. 已实现：import（三级）、class、def（return/yield）、try/except、lambda、三元、f-string/r-string/`%`、推导式、生成器表达式、标准库 `this`/`os`/`sys`/`pathlib`。
+2. 已实现：import（三级）、class、def（return/yield）、try/except、lambda、三元、f-string/r-string/`%`、推导式、生成器表达式、标准库 `this`/`os`/`sys`/`pathlib`/`math`/`threading`/`subprocess`。
 3. `async`/`await` 解析到即致命报错，退出码 1，且 `try/except` 无法捕获。
 4. 解释器生成的所有错误信息全小写。
 5. 不使用 cgo；`CGO_ENABLED=0 go build ./...` 成功。
@@ -507,9 +507,9 @@ go run . demo.py
 
 ### 工程化收尾（M12）
 
-- [ ] 完善 `README.md`：用法、支持范围、明确不支持的项（async/await 等）、示例。
+- [x] 完善 `README.md`：用法、支持范围、明确不支持的项（async/await 等）、示例。
 - [x] 性能基线（可选）：`go run . demo.py` real ~45 ms，`go run . testdata/m2_basic.py` real ~30 ms，均退出码 0。
-- [ ] 最终 `gofmt -l .`、`go vet ./...`、`go test ./...`、`CGO_ENABLED=0 go build ./...`、`go run . demo.py` 全部绿灯。
+- [x] 最终 `gofmt -l .`、`go vet ./...`、`go test ./...`、`CGO_ENABLED=0 go build ./...`、`go run . demo.py` 全部绿灯。
 
 ---
 
@@ -566,3 +566,7 @@ go run . demo.py
   - 改动：新增 `DEVELOPMENT.md`，详写如何编写标准库（`module/`，`init()`+`Register`+`Factory func() *object.Module`、`object.NewBuiltin`、`object.Raisef`、依赖边界仅限 `internal/object`）以及如何编写项目依赖（`gpython_modules/`，单文件模块与包、`__init__.py`、`GPYTHONPATH`、三级导入查找顺序），并附快速检查清单。
   - 验证：`gofmt -l .` 无输出；`CGO_ENABLED=0 go build ./...` 成功；`go run . demo.py` 退出码 0、stderr 为空，且输出与期望注释逐行一致（.md 文件不影响 Go 编译）。
   - 下一步：无（M0–M12 均已完成）。
+- 2026-11-13：修复 DESIGN.md 和 TODO.md 中的过时信息。
+  - 改动：`DESIGN.md` 第 8 节将“REPL 留作后续增强”改为“已实现 REPL”；第 12 节“下一步”改为“所有里程碑 M0–M12 均已完成，原计划保留为历史记录”。`TODO.md` 全局验收标准第 2 点补充 `math`/`threading`/`subprocess`；第二阶段待办中 README 完善、最终验收全部绿灯改为 `[x]`。
+  - 验证：`gofmt -l .` 无输出；`go vet ./...` 无告警；`go test ./...` 全部 ok；`CGO_ENABLED=0 go build ./...` 成功；`go run . demo.py` 退出码 0、stderr 为空，且输出与期望注释逐行一致。
+  - 下一步：无。
