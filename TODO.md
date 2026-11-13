@@ -45,7 +45,7 @@ M4 -> M10 ---------------------------------/
 
 ## M0 项目骨架、依赖、包布局
 
-状态：[ ] 未开始
+状态：[x] 已完成
 
 目标：让 `go build ./...`、`CGO_ENABLED=0 go build ./...`、`go run .` 能跑通空解释器。
 
@@ -80,7 +80,7 @@ go run .            # 输出用法或运行默认 demo.py（见 DESIGN 第 8 节
 
 ## M1 运行时对象模型
 
-状态：[ ] 未开始
+状态：[x] 已完成
 
 目标：实现解释器使用的值类型与基本协议。
 
@@ -113,7 +113,7 @@ go test ./internal/object/...
 
 ## M2 求值核心（表达式 + 基础语句）
 
-状态：[ ] 未开始
+状态：[x] 已完成
 
 目标：能执行不含函数/类/导入的脚本。
 
@@ -156,7 +156,7 @@ go run . testdata/m2_basic.py    # 自建基础脚本
 
 ## M3 函数、闭包、装饰器、生成器
 
-状态：[ ] 未开始
+状态：[x] 已完成
 
 目标：完整实现 `def` 与 `return`/`yield`。
 
@@ -192,7 +192,7 @@ go run . testdata/m3_functions.py
 
 ## M4 类、继承、异常与 try/except
 
-状态：[ ] 未开始
+状态：[x] 已完成
 
 目标：实现 `class`、`try/except/else/finally`、异常体系。
 
@@ -230,7 +230,7 @@ go run . testdata/m4_classes.py
 
 ## M5 字符串：f-string / r-string / `%`
 
-状态：[ ] 未开始
+状态：[x] 已完成
 
 目标：实现三类字符串语法与格式说明符。
 
@@ -261,7 +261,7 @@ go run . testdata/m5_strings.py
 
 ## M6 内置函数与全小写错误体系
 
-状态：[ ] 未开始
+状态：[x] 已完成
 
 目标：提供 `demo.py` 所需内置函数，并统一错误文案。
 
@@ -287,7 +287,7 @@ go test ./internal/builtins/...
 
 ## M7 async/await 致命预检
 
-状态：[ ] 未开始
+状态：[x] 已完成
 
 目标：解析到 `async`/`await` 立即报致命错误，不可捕获。
 
@@ -534,3 +534,9 @@ go run . demo.py
   - 改动：`internal/interp/errors.go` 新增导出 `WrapParseError`；`internal/interp/interp.go` 新增 `EvalExpr` 与 `SetScriptDir`。
   - 验证：`gofmt -l .` 无输出；`go vet ./...` 无告警；`CGO_ENABLED=0 go build ./...` 成功；`go run . demo.py` 退出码 0 且输出与期望 `diff` 一致；REPL 表达式/多行/语法错误/EOF 均按预期。
 - 2026-11-13：整理多 AI 遗留的文档/代码不一致；同步 TODO.md 与 agent.md，使 `math`/`threading`/`subprocess` 状态与代码一致（均已落地，见提交 8f78fb5）；验证 `gofmt -l .`、`go vet ./...`、`go test ./...`、`CGO_ENABLED=0 go build ./...`、`go run . demo.py` 全部绿灯；下一步：提交并 `git push` 到 origin/main。
+- 2026-11-13：修复项目卫生问题。
+  - 补全单元测试：新增 `internal/object/object_test.go`、`internal/interp/interp_test.go`、`internal/builtins/builtins_test.go`，使各包均有 `_test.go`（`module/` 原有）。
+  - 填充 `testdata/`：新增 `m2_basic.py`、`m4_classes.py`、`m5_strings.py` 三阶段冒烟脚本；`.gitignore` 增加 `!testdata/*.py` 例外。
+  - 统一 `TODO.md` 里程碑状态：M0–M7 正文状态改为 `[x] 已完成`，与头部进度表一致。
+  - 固化依赖：运行 `go mod tidy`，`go.mod`/`go.sum` 干净无变化，已提交。
+  - 验证：`gofmt -l .`、`go vet ./...`、`go test ./...`、`CGO_ENABLED=0 go build ./...`、`go run . demo.py` 及三个 `testdata/` 脚本全部绿灯。

@@ -35,4 +35,5 @@ go.work.sum
 # gpython
 *.py
 !demo.py
+!testdata/*.py
 gpython_modules/
