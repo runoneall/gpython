@@ -14,6 +14,8 @@ from math import sqrt
 from math import factorial as fact
 import os
 import sys
+import threading
+import subprocess
 
 print("1. imports")
 print("   floor(3.7) =", math.floor(3.7))
@@ -468,6 +470,55 @@ assert pairs == [(1, 1), (1, 2), (2, 1), (2, 2)]
 assert filtered == [4, 6, 8]
 assert gen_list == [1, 4, 9]
 
+print("8. threading")
+
+results = []
+
+
+def worker(value):
+    results.append(value)
+
+
+t = threading.Thread(target=worker, args=(42,))
+t.start()
+t.join()
+print("   thread joined:", results == [42])
+print("   thread alive after join:", not t.is_alive())
+
+lock = threading.Lock()
+lock.acquire()
+print("   lock locked:", lock.locked())
+lock.release()
+print("   lock locked after release:", not lock.locked())
+
+event = threading.Event()
+print("   event initially set:", not event.is_set())
+event.set()
+print("   event set:", event.is_set())
+event.clear()
+print("   event cleared:", not event.is_set())
+
+print("   active_count:", threading.active_count())
+print("   main thread:", threading.current_thread().name)
+
+assert results == [42]
+assert not t.is_alive()
+assert threading.active_count() == 1
+assert threading.current_thread().name == "MainThread"
+
+print("9. subprocess")
+
+cp = subprocess.run(["echo", "hello"], capture_output=True)
+print("   subprocess rc:", cp.returncode)
+assert cp.returncode == 0
+assert cp.stdout == "hello\n"
+
+p = subprocess.Popen(["echo", "popen"])
+out, err = p.communicate()
+print("   popen rc:", p.returncode)
+assert p.returncode == 0
+assert out == "popen\n"
+
 print("all acceptance checks passed")
 
 # ---------------------------------------------------------------------------
@@ -527,5 +578,18 @@ print("all acceptance checks passed")
 #    nested = [(1, 1), (1, 2), (2, 1), (2, 2)]
 #    filtered = [4, 6, 8]
 #    generator = [1, 4, 9]
+# 8. threading
+#    thread joined: True
+#    thread alive after join: True
+#    lock locked: True
+#    lock locked after release: True
+#    event initially set: True
+#    event set: True
+#    event cleared: True
+#    active_count: 1
+#    main thread: MainThread
+# 9. subprocess
+#    subprocess rc: 0
+#    popen rc: 0
 # all acceptance checks passed
 # ---------------------------------------------------------------------------
