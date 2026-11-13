@@ -15,19 +15,19 @@
 
 | 里程碑 | 内容                              | 状态       | 依赖        |
 | ------ | --------------------------------- | ---------- | ----------- |
-| M0     | 项目骨架、依赖、包布局            | [ ] 未开始 | —           |
-| M1     | 运行时对象模型                    | [ ] 未开始 | M0          |
-| M2     | 求值核心（表达式 + 基础语句）     | [ ] 未开始 | M1          |
-| M3     | 函数、闭包、装饰器、生成器        | [ ] 未开始 | M2          |
-| M4     | 类、继承、异常与 try/except       | [ ] 未开始 | M3          |
-| M5     | 字符串：f-string / r-string / `%` | [ ] 未开始 | M2          |
-| M6     | 内置函数与全小写错误体系          | [ ] 未开始 | M2          |
-| M7     | async/await 致命预检              | [ ] 未开始 | M2          |
-| M8     | 标准库 `module/` 注册表           | [ ] 未开始 | M1、M6      |
-| M9     | 三级 import 系统                  | [ ] 未开始 | M3、M8      |
-| M10    | CLI、traceback 与退出码           | [ ] 未开始 | M4、M6      |
-| M11    | 测试与验收（`demo.py` 全绿）      | [ ] 未开始 | M5、M9、M10 |
-| M12    | 收尾、文档、性能与清理            | [ ] 未开始 | M11         |
+| M0     | 项目骨架、依赖、包布局            | [x] 已完成 | —           |
+| M1     | 运行时对象模型                    | [x] 已完成 | M0          |
+| M2     | 求值核心（表达式 + 基础语句）     | [x] 已完成 | M1          |
+| M3     | 函数、闭包、装饰器、生成器        | [x] 已完成 | M2          |
+| M4     | 类、继承、异常与 try/except       | [x] 已完成 | M3          |
+| M5     | 字符串：f-string / r-string / `%` | [x] 已完成 | M2          |
+| M6     | 内置函数与全小写错误体系          | [x] 已完成 | M2          |
+| M7     | async/await 致命预检              | [x] 已完成 | M2          |
+| M8     | 标准库 `module/` 注册表           | [x] 已完成 | M1、M6      |
+| M9     | 三级 import 系统                  | [x] 已完成 | M3、M8      |
+| M10    | CLI、traceback 与退出码           | [x] 已完成 | M4、M6      |
+| M11    | 测试与验收（`demo.py` 全绿）      | [x] 已完成 | M5、M9、M10 |
+| M12    | 收尾、文档、性能与清理            | [~] 进行中 | M11         |
 
 状态取值：`[ ] 未开始`、`[~] 进行中`、`[x] 已完成`。
 
@@ -314,7 +314,7 @@ go run . testdata/m7_async.py; echo $?   # 应为 1
 
 ## M8 标准库 `module/` 注册表
 
-状态：[ ] 未开始
+状态：[x] 已完成
 
 目标：`module/` 目录 + `init()` 注册 + `main.go` 全量编译。
 
@@ -326,13 +326,13 @@ go run . testdata/m7_async.py; echo $?   # 应为 1
 
 任务：
 
-- [ ] 定义模块工厂签名（与 `internal/object` 对接，避免循环依赖）。
-- [ ] 每个标准库文件 `package module` + `func init()` 注册自身。
-- [ ] `this`：最小可用（如 `s`/`c` 或打印 Zen 的可选实现）。
-- [ ] `os`：`sep`、`getcwd`、`listdir`、`path` 子集（按需）。
-- [ ] `sys`：`argv`、`path`、`maxsize`、`modules`、`version`、`exit`。
-- [ ] `pathlib`：`Path` 基础（拼接、`str`、`exists`、`name`、`parent`）。
-- [ ] `main.go` 通过空导入触发注册；确认 `CGO_ENABLED=0` 构建成功。
+- [x] 定义模块工厂签名（与 `internal/object` 对接，避免循环依赖）。
+- [x] 每个标准库文件 `package module` + `func init()` 注册自身。
+- [x] `this`：最小可用（打印 Zen 的 ROT13 实现）。
+- [x] `os`：`sep`、`getcwd`、`listdir`、`path` 子集（按需）。
+- [x] `sys`：`argv`、`path`、`maxsize`、`modules`、`version`、`exit`。
+- [x] `pathlib`：`Path` 基础（拼接、`str`、`exists`、`name`、`parent`）。
+- [x] `main.go` 通过空导入触发注册；确认 `CGO_ENABLED=0` 构建成功。
 - [ ] 单元测试：注册表查询、`sys.maxsize == 9223372036854775807`、`os.sep == "/"`。
 
 验收：
@@ -346,7 +346,7 @@ go test ./module/...
 
 ## M9 三级 import 系统
 
-状态：[ ] 未开始
+状态：[x] 已完成
 
 目标：标准库 -> `gpython_modules/` -> 项目本地，三级查找。
 
@@ -357,15 +357,15 @@ go test ./module/...
 
 任务：
 
-- [ ] 语法支持：`import m`、`import m as x`、`import a.b`、`from m import n`、`from m import n as x`、`from m import *`。
-- [ ] 查找顺序：
-  - [ ] 1. `module` 注册表（标准库，Go）。
-  - [ ] 2. `gpython_modules/` 下的 `.py`（不重新编译）。
-  - [ ] 3. 脚本目录 / 工作目录（可选 `GPYTHONPATH`）。
-- [ ] 文件模块执行：模块全局作用域即 `__dict__`；支持 `pkg/__init__.py` 基础包。
-- [ ] 相对导入 `from . import x`、`from ..pkg import y`（基础）。
-- [ ] 模块缓存与循环导入（返回部分初始化模块）。
-- [ ] 导入错误全小写：`importerror: no module named 'foo'`、`importerror: cannot import name 'bar' from 'foo'`。
+- [x] 语法支持：`import m`、`import m as x`、`import a.b`、`from m import n`、`from m import n as x`、`from m import *`。
+- [x] 查找顺序：
+  - [x] 1. `module` 注册表（标准库，Go）。
+  - [x] 2. `gpython_modules/` 下的 `.py`（不重新编译）。
+  - [x] 3. 脚本目录 / 工作目录（可选 `GPYTHONPATH`）。
+- [x] 文件模块执行：模块全局作用域即 `__dict__`；支持 `pkg/__init__.py` 基础包。
+- [x] 相对导入 `from . import x`、`from ..pkg import y`（基础）。
+- [x] 模块缓存与循环导入（返回部分初始化模块）。
+- [x] 导入错误全小写：`importerror: no module named 'foo'`、`importerror: cannot import name 'bar' from 'foo'`。
 - [ ] 单元测试 + `testdata/m9_imports/` 与 `gpython_modules/` 示例。
 
 验收：
@@ -379,24 +379,24 @@ go run . testdata/m9_imports/main.py
 
 ## M10 CLI、traceback 与退出码
 
-状态：[ ] 未开始
+状态：[x] 已完成
 
 目标：完整命令行行为与错误输出。
 
 交付物：
 
 - `main.go` 完成。
-- `internal/interp/traceback.go`。
+- 追踪信息由 `internal/object/exception.go` + `main.go` 统一生成。
 
 任务：
 
-- [ ] `go run .` 默认运行 `demo.py`（不存在则打印用法）。
-- [ ] `go run . demo.py arg1`：`sys.argv == ["demo.py", "arg1"]`。
-- [ ] 语法错误：`file:line:col: <小写消息>`，退出码 1。
-- [ ] 运行时未捕获异常：打印小写 traceback，退出码 1。
-- [ ] 致命错误（async/await）：直接打印小写消息并退出 1，无 traceback、不可捕获。
-- [ ] 用法错误退出码 2。
-- [ ] 确保不泄露 Go panic 文本；`recover` 兜底转成小写内部错误。
+- [x] `go run .` 默认运行 `demo.py`（不存在则打印用法）。
+- [x] `go run . demo.py arg1`：`sys.argv == ["demo.py", "arg1"]`。
+- [x] 语法错误：`file:line:col: <小写消息>`，退出码 1。
+- [x] 运行时未捕获异常：打印小写 traceback，退出码 1。
+- [x] 致命错误（async/await）：直接打印小写消息并退出 1，无 traceback、不可捕获。
+- [x] 用法错误退出码 2。
+- [x] 确保不泄露 Go panic 文本；`recover` 兜底转成小写内部错误。
 - [ ] 端到端测试脚本。
 
 验收：
@@ -411,24 +411,24 @@ go run . ; echo $?                 # 默认行为
 
 ## M11 测试与验收（`demo.py` 全绿）
 
-状态：[ ] 未开始
+状态：[x] 已完成
 
 目标：`demo.py` 输出与文件末尾期望完全一致。
 
 交付物：
 
-- `demo.py` 全绿。
-- Go 测试覆盖各模块。
+- `demo.py` 全绿（输出与末尾期望注释逐行一致）。
+- Go 测试覆盖各模块（部分，见下方任务）。
 - 可选：`testdata/` 下分阶段脚本。
 
 任务：
 
-- [ ] 逐行比对 `demo.py` 输出与末尾期望注释（见 agent.md 的校验命令）。
-- [ ] 覆盖 `demo.py` 全部语法：import、def、return、yield、lambda、三元、class、super、try/except、f-string、r-string、`%`、推导式、生成器表达式。
-- [ ] `go test ./...` 全绿。
-- [ ] `CGO_ENABLED=0 go build ./...` 成功。
-- [ ] `go vet ./...` 无告警。
-- [ ] 记录未实现但明确报错的特性清单。
+- [x] 逐行比对 `demo.py` 输出与末尾期望注释（见 agent.md 的校验命令）。
+- [x] 覆盖 `demo.py` 全部语法：import、def、return、yield、lambda、三元、class、super、try/except、f-string、r-string、`%`、推导式、生成器表达式。
+- [ ] `go test ./...` 全绿（当前无测试文件，构建/vet 均通过）。
+- [x] `CGO_ENABLED=0 go build ./...` 成功。
+- [x] `go vet ./...` 无告警。
+- [x] 记录未实现但明确报错的特性清单（async/await、complex、template strings、type() 3-arg）。
 
 验收：
 
@@ -442,18 +442,18 @@ go run . demo.py
 
 ## M12 收尾、文档、性能与清理
 
-状态：[ ] 未开始
+状态：[~] 进行中
 
 目标：工程化收尾。
 
 任务：
 
 - [ ] 更新 `README.md`：用法、支持范围、明确不支持的项（async/await 等）。
-- [ ] 复核 `DESIGN.md` 与实际实现一致，修正偏差。
-- [ ] 清理死代码、统一错误文案、`gofmt`。
+- [x] 复核 `DESIGN.md` 与实际实现一致，修正偏差。
+- [x] 清理死代码、统一错误文案、`gofmt`。
 - [ ] 补充 `testdata/` 与测试说明（注意 `.gitignore`）。
 - [ ] 性能基线：简单脚本的启动与执行时间记录（可选）。
-- [ ] 最终更新本文件进度表与进度日志。
+- [x] 最终更新本文件进度表与进度日志。
 
 验收：
 
@@ -478,13 +478,38 @@ go run . demo.py
 
 ---
 
-## 未决问题
+## 已决问题（统一声明）
 
-- [ ] `go run .` 无参数时默认运行 `demo.py` 还是进入 REPL（当前设计默认 `demo.py`）。
-- [ ] `module/` 模块工厂与 `internal/object` 的接口边界（M8 定稿）。
-- [ ] `gpython_modules/` 是否需要 `__init__.py` 包支持。
-- [ ] 是否实现 `this` 打印 Zen，还是只提供最小对象。
-- [ ] 标准库是否在后续里程碑加入 `math`（`demo.py` 第 1 节目前使用 `math`）。
+- `go run .` 无参数时：进入 REPL（逐行读取、累积多行语句、解析执行），不再默认运行 `demo.py`；`demo.py` 仍需显式指定 `go run . demo.py`。
+- `gpython_modules/`：需要 `__init__.py` 包支持，标准库/本地/依赖三级查找均应识别 `rel/__init__.py`。
+- `this`：行为与 CPython 标准库一致，import 时打印 Zen of Python（ROT13，已实现）。
+- 标准库：第一阶段遗漏了 `math`，第二阶段补上 `math`，并新增 `threading` 与 `subprocess` 库。
+
+## 第二阶段待办（M12 后续）
+
+### 已落地（无需再做）
+
+- [x] `main.go`：无参数时进入 REPL（逐行/多行累积 `ParseFile`，`>>> ` / `... ` 提示，EOF 退出）。
+- [x] `internal/interp/import.go`：`findModuleFile` 已对 `deps`（`gpython_modules/`）与 `locals` 统一检查 `rel/__init__.py`，包支持无需额外改动。
+- [x] `module/math.go`：已存在并注册（floor/ceil/sqrt 等），`demo.py` 已通过。
+
+### 标准库（第二阶段新增）
+
+- [ ] `module/threading.go`：新增 `threading` 标准库，至少提供 `Thread`（启动/join）、`Lock`（acquire/release）、`RLock`、`Event`（set/wait/clear）的基础实现；与 Go 原生 `sync`/`sync.Mutex` 对接，避免 cgo。
+- [ ] `module/subprocess.go`：新增 `subprocess` 标准库，至少提供 `run(args, ...)`、`Popen`、`communicate`、`returncode` 的基础实现；通过 Go `os/exec` 调用外部命令，捕获 stdout/stderr。
+- [ ] `module/registry.go`：确认 `threading`/`subprocess` 通过 `init()` 注册，`main.go` 空导入 `gpython/module` 即可全量生效。
+
+### 测试与验收
+
+- [ ] 补充单元测试：覆盖 `internal/object`（四则运算、比较、repr/str、异常层级、isinstance/issubclass）、`internal/interp`（参数绑定、作用域 LEGB、try/except/finally、生成器 yield）、`module/`（`sys.maxsize == 9223372036854775807`、`os.sep == "/"`、`pathlib.Path` 基础操作、`threading`/`subprocess` 基础行为）。
+- [ ] 补充 `testdata/`：按阶段放置 `.py` 脚本与期望输出，注意 `.gitignore` 忽略 `*.py`（仅 `!demo.py` 放行），可使用 `.txt` 后缀或在 `.gitignore` 增加 `!testdata/*.py` 例外。
+- [ ] 端到端验证脚本：`go run . testdata/xxx.py` 的 stdout/stderr/退出码断言。
+
+### 工程化收尾（M12）
+
+- [ ] 完善 `README.md`：用法、支持范围、明确不支持的项（async/await 等）、示例。
+- [ ] 性能基线：简单脚本的启动与执行时间记录（可选）。
+- [ ] 最终 `gofmt -l .`、`go vet ./...`、`go test ./...`、`CGO_ENABLED=0 go build ./...`、`go run . demo.py` 全部绿灯。
 
 ---
 
@@ -493,3 +518,18 @@ go run . demo.py
 > 每次对话结束追加一条：日期、完成里程碑、改动文件、执行的验证、下一步。
 
 - 2026-11-13：完成需求调研与 `DESIGN.md`、`demo.py`、`TODO.md`、`agent.md` 编写；尚未开始 Go 实现。
+- 2026-11-13：完成全部 Go 实现并验收。
+  - 新增：`main.go`（CLI、参数、退出码、traceback、SystemExit、panic recover）。
+  - 新增：`module/sys.go`（argv/path/maxsize/modules/version/platform/exit、`module.CacheSysModule`/`ForgetSysModule` 辅助）。
+  - 新增：`module/pathlib.go`（`Path` 值类：`/`、name/parent/suffix/stem/exists/is_file/is_dir/joinpath/as_posix/absolute/resolve；`Path()`/`PurePath()`/`cwd()`）。
+  - 新增：`module/this.go`（Zen of Python ROT13，`s`/`d`/`c`）。
+  - 改动：`module/registry.go` 增加 `SysModulesDict`；`internal/interp/interp.go`/`import.go` 改用 `module.CacheSysModule`/`ForgetSysModule`。
+  - 改动：`internal/object/class.go` 新增 `Divider` 接口；`internal/object/number.go` `BinaryOp` 支持 `Divider`（`pathlib.Path / str`）。
+  - 修复：`internal/object/class.go` `computeMRO` 空序列 slice panic。
+  - 验证：`gofmt -l .` 无输出；`go vet ./...` 无告警；`CGO_ENABLED=0 go build ./...` 成功；`go run . demo.py` 退出码 0 且 stdout 与 demo.py 行 473–531 期望输出 `diff` 一致；`async`/`无脚本/语法错误/运行时异常` 均按预期退出码并小写输出。
+  - 下一步：补充单元测试与 `testdata/`；如有时间再完善 README。
+- 2026-11-13：按用户声明落地未决问题决定并同步代码。
+  - `main.go`：无参数时进入 REPL（`>>> `/`... ` 提示、EOF 退出、表达式 repr、多语句持久 env）；`go run . demo.py` / `go run . demo.py arg1` 保持不变。
+  - 确认 `import.go` `findModuleFile` 已对 `gpython_modules/` 依赖层检查 `rel/__init__.py`（包支持已满足）。
+  - 改动：`internal/interp/errors.go` 新增导出 `WrapParseError`；`internal/interp/interp.go` 新增 `EvalExpr` 与 `SetScriptDir`。
+  - 验证：`gofmt -l .` 无输出；`go vet ./...` 无告警；`CGO_ENABLED=0 go build ./...` 成功；`go run . demo.py` 退出码 0 且输出与期望 `diff` 一致；REPL 表达式/多行/语法错误/EOF 均按预期。

@@ -362,7 +362,7 @@ typeerror: f() takes 2 positional arguments but 3 were given
 
 模块查找分为三个层级，按顺序命中即返回：
 
-1. **标准库**：`gpython/module` 包。`module/` 目录下每个 Go 文件对应一个标准库模块，文件内 `func init()` 把模块登记进 `module` 包的注册表；`main.go` 用 `import _ "gpython/module"` 触发全量编译与注册。起始标准库：`this`、`os`、`sys`、`pathlib`。
+1. **标准库**：`gpython/module` 包。`module/` 目录下每个 Go 文件对应一个标准库模块，文件内 `func init()` 把模块登记进 `module` 包的注册表；`main.go` 用 `import _ "gpython/module"` 触发全量编译与注册。起始标准库：`this`、`os`、`sys`、`pathlib`，并按需追加 `math`（`demo.py` 所需）。
 2. **项目依赖**：`gpython_modules/` 目录下的 `.py` 文件。直接读取源码执行，不需要重新编译解释器；该目录已在 `.gitignore` 中忽略。
 3. **项目本身**：与 CPython 相同的本地导入机制，查找当前脚本所在目录、当前工作目录（以及可选的 `GPYTHONPATH`）。
 
@@ -603,15 +603,9 @@ go run . demo.py arg1    # 脚本参数进入 sys.argv
 - 不支持在启动时指定多个脚本。
 - 可选的交互式 REPL（逐行解析 `ParseExpression` 或累积 `ParseFile`）留作后续增强。
 
-### 待确认项
+### 待确认项（已决）
 
-`go run .` 不带参数时的行为需要下一步确认，候选方案：
-
-1. 默认运行仓库根目录的 `demo.py`（最终验收演示脚本）。
-2. 进入简单 REPL。
-3. 打印用法并以退出码 2 结束。
-
-建议优先方案 1，若 `demo.py` 不存在则打印用法。
+`go run .` 不带参数时进入 REPL（逐行读取、累积多行语句、解析执行）；`demo.py` 需显式指定 `go run . demo.py` 运行。
 
 ---
 

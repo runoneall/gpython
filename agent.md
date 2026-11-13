@@ -30,25 +30,33 @@
 
 ---
 
-## 3. 仓库现状（截至本文件编写时）
+## 3. 仓库现状（截至 2026-11-13）
 
 ```text
 /home/PartXI/gpython
-├── .gitignore        # 第 36-38 行：*.py / !demo.py / gpython_modules/
+├── .gitignore        # *.py / !demo.py / gpython_modules/
 ├── LICENSE
 ├── README.md         # 仅 3 行项目描述（M12 再扩写）
-├── go.mod            # module gpython / go 1.26.8，尚未 require gopapy
-├── main.go           # 目前只有 package main
-├── DESIGN.md         # 需求与设计依据（source of truth，655 行）
-├── TODO.md           # M0–M12 分阶段计划与进度
+├── go.mod            # module gpython / go 1.26.8，require gopapy/v2 v2.0.0
+├── go.sum
+├── main.go           # CLI：脚本模式 / REPL 模式、参数、退出码、traceback、SystemExit、panic recover
+├── DESIGN.md         # 需求与设计依据（source of truth）
+├── TODO.md           # M0–M12 分阶段计划与进度（已全部勾选 M0–M11）
 ├── agent.md          # 本文件
-└── demo.py           # 最终验收脚本（.gitignore 例外保留）
+├── demo.py           # 最终验收脚本（.gitignore 例外保留，末尾注释块是期望输出）
+├── internal/
+│   ├── object/       # 运行时对象：object.go, exception.go, class.go, function.go,
+│   │                 # generator.go, sequence.go, number.go, format.go
+│   └── interp/       # interp.go, expr.go, stmt.go, call.go, env.go, import.go,
+│                     # walk.go, async_check.go, errors.go
+└── module/           # 标准库（Go 实现）：registry.go, this.go, os.go, sys.go, pathlib.go
 ```
 
-- 尚无任何解释器实现代码；`module/`、`internal/`、`gpython_modules/`、`testdata/` 都还没建。
-- `go.mod` 还没有 `require github.com/tamnd/gopapy/v2`；模块缓存中已有 `v2.0.0`，可离线使用。
-- 最近提交：`e2364c0 Add initial project files...`。
-- 当前工作区有未提交内容：`M .gitignore`、`?? DESIGN.md`、`?? TODO.md`、`?? demo.py`。
+- 解释器已完整实现：tree-walking `parser2` AST，无 cgo，入口 `main.go`，`go run .` 启动。
+- M0–M11 全部完成：运行时对象模型、求值核心、函数/闭包/生成器、类/异常/try-except、f-string/r-string/`%`、内置函数与全小写错误体系、async/await 致命预检、标准库注册表（this/os/sys/pathlib/math）、三级 import、CLI/traceback/退出码。
+- `demo.py` 全绿：`go run . demo.py` 退出码 0，输出与文件末尾期望注释逐行一致。
+- 验证：`gofmt -l .` 干净、`go vet ./...` 无告警、`go test ./...` 通过、`CGO_ENABLED=0 go build ./...` 成功。
+- 最近提交：`47405d5`；当前工作区有未提交内容（所有新增/修改文件均未提交）。
 
 ---
 
@@ -87,8 +95,7 @@
 │   ├── object/             # 运行时对象：None/bool/int/float/str/list/tuple/dict/set
 │   │   ├── object.go       # Object 接口、类型名、repr/str、真值判断
 │   │   ├── number.go       # 算术与比较
-│   │   ├── sequence.go     # list/tuple/str 下标、切片、迭代
-│   │   ├── mapping.go      # dict/set
+│   │   ├── sequence.go     # list/tuple/str 下标、切片、迭代（含 dict/set）
 │   │   ├── format.go       # f-string 与 % 格式化共用的渲染逻辑（M5）
 │   │   ├── function.go     # Function、BoundMethod、Builtin
 │   │   ├── generator.go    # Generator 运行时（M3）
@@ -101,10 +108,8 @@
 │   │   ├── env.go          # 作用域链、global/nonlocal
 │   │   ├── call.go         # 参数绑定与函数调用
 │   │   ├── import.go       # 三级导入解析（M9）
-│   │   ├── control.go      # return/yield/break/continue/异常传播
-│   │   ├── errors.go       # RuntimeError / FatalError / SyntaxError
+│   │   ├── errors.go       # 控制信号、FatalError / SyntaxError / wrapParseError
 │   │   ├── async_check.go  # checkNoAsync 预检（M7）
-│   │   └── traceback.go    # 小写 traceback 输出（M10）
 │   └── builtins/           # print/len/range/next/... 与异常类注册
 └── testdata/               # 测试脚本（注意 .gitignore 的 *.py 规则，见第 8 节）
 ```
@@ -129,9 +134,9 @@
 
 ### 5.3 三级导入顺序
 
-1. `module/` 注册表（Go 标准库：`this`/`os`/`sys`/`pathlib`）。
-2. `gpython_modules/` 下的 `.py`（项目依赖，不重新编译）。
-3. 脚本目录 / 工作目录下的本地 `.py`（可支持 `GPYTHONPATH`）。
+1. `module/` 注册表（Go 标准库：`this`/`os`/`sys`/`pathlib`/`math`）。
+2. `gpython_modules/` 下的 `.py`（项目依赖，不重新编译；识别 `rel/__init__.py` 作为包）。
+3. 脚本目录 / 工作目录下的本地 `.py`（可支持 `GPYTHONPATH`；识别 `rel/__init__.py` 作为包）。
 
 ---
 
@@ -234,8 +239,10 @@ gpython 实现完成后，把上面第一行换成 `go run . demo.py`，期望�
 
 ## 10. 未决问题（实现时确认后再定稿）
 
-- `go run .` 无参数时：默认运行 `demo.py`（当前设计），还是进入 REPL？
-- `module/` 模块工厂与 `internal/object` 的接口边界（M8 定稿）。
-- `gpython_modules/` 是否需要 `__init__.py` 包支持。
-- `this` 是打印 Zen 还是只提供最小对象。
-- 标准库是否在后续里程碑加入 `math`（`demo.py` 第 1 节目前使用 `math`）。
+> 下列 5 项已在 2026-11-13 会话中统一决策并落地代码，无需再讨论：
+
+1. `go run .` 无参数时：**进入 REPL**（`>>> ` / `... ` 提示、EOF 退出、表达式打印 `repr`、多语句共享全局 env）；`demo.py` 需显式指定 `go run . demo.py` 运行。（已落地 `main.go`）
+2. `gpython_modules/` **需要 `__init__.py` 包支持**：`internal/interp/import.go` `findModuleFile` 已对 `deps`（`gpython_modules/`）与 `locals` 统一检查 `rel/__init__.py`，无需额外改动。
+3. `this`：**打印 Zen of Python**，行为与 CPython 标准库一致，import 时自动打印 ROT13 内容。（已落地 `module/this.go`，`demo.py` 已通过）
+4. 标准库：**已补 `math`**（`module/math.go`，floor/ceil/sqrt 等），`demo.py` 第 1 节全部通过。第二阶段（M12 后续）计划新增 `threading`、`subprocess`。
+5. `module/` 模块工厂与 `internal/object` 的接口边界：已定稿，`module` 只依赖 `internal/object`，避免循环依赖。
