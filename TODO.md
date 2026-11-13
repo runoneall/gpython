@@ -442,7 +442,7 @@ go run . demo.py
 
 ## M12 收尾、文档、性能与清理
 
-状态：[~] 进行中
+状态：[x] 已完成
 
 目标：工程化收尾。
 
@@ -451,8 +451,8 @@ go run . demo.py
 - [x] 更新 `README.md`：用法、支持范围、明确不支持的项（async/await 等）；已随标准库提交扩写。
 - [x] 复核 `DESIGN.md` 与实际实现一致，修正偏差。
 - [x] 清理死代码、统一错误文案、`gofmt`。
-- [ ] 补充 `testdata/` 与测试说明（注意 `.gitignore`）。
-- [ ] 性能基线：简单脚本的启动与执行时间记录（可选）。
+- [x] 补充 `testdata/` 与测试说明：新增 `testdata/m2_basic.py`、`m4_classes.py`、`m5_strings.py` 三阶段冒烟脚本；`.gitignore` 已放行 `!testdata/*.py`；单元测试覆盖 `internal/object`、`internal/interp`、`internal/builtins`、`module/`。
+- [x] 性能基线（可选）：`go run . demo.py` real ~45 ms，`go run . testdata/m2_basic.py` real ~30 ms，均退出码 0。
 - [x] 最终更新本文件进度表与进度日志（本次整理）。
 
 验收：
@@ -508,7 +508,7 @@ go run . demo.py
 ### 工程化收尾（M12）
 
 - [ ] 完善 `README.md`：用法、支持范围、明确不支持的项（async/await 等）、示例。
-- [ ] 性能基线：简单脚本的启动与执行时间记录（可选）。
+- [x] 性能基线（可选）：`go run . demo.py` real ~45 ms，`go run . testdata/m2_basic.py` real ~30 ms，均退出码 0。
 - [ ] 最终 `gofmt -l .`、`go vet ./...`、`go test ./...`、`CGO_ENABLED=0 go build ./...`、`go run . demo.py` 全部绿灯。
 
 ---
@@ -540,3 +540,8 @@ go run . demo.py
   - 统一 `TODO.md` 里程碑状态：M0–M7 正文状态改为 `[x] 已完成`，与头部进度表一致。
   - 固化依赖：运行 `go mod tidy`，`go.mod`/`go.sum` 干净无变化，已提交。
   - 验证：`gofmt -l .`、`go vet ./...`、`go test ./...`、`CGO_ENABLED=0 go build ./...`、`go run . demo.py` 及三个 `testdata/` 脚本全部绿灯。
+- 2026-11-13：推进 M12 至完成。
+  - 复核 `DESIGN.md` 与实际实现一致：标准库描述补充 `math`/`threading`/`subprocess`（第 2、4、7 节及模块查找层级说明）。
+  - 补充 `testdata/` 与测试说明：新增 `m2_basic.py`、`m4_classes.py`、`m5_strings.py` 三阶段冒烟脚本；`.gitignore` 放行 `!testdata/*.py`；单元测试覆盖 `internal/object`、`internal/interp`、`internal/builtins`、`module/`。
+  - 性能基线：`go run . demo.py` real ~45 ms，`go run . testdata/m2_basic.py` real ~30 ms，均退出码 0。
+  - 验收：`gofmt -l .`、`go vet ./...`、`go test ./...`、`CGO_ENABLED=0 go build ./...`、`go run . demo.py` 全部绿灯。

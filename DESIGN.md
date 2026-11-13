@@ -18,7 +18,7 @@
 | 入口     | `main.go`                                                                           |
 | 启动命令 | `go run .`                                                                          |
 | 必须实现 | `import` 导入、`class` 类、`def` 函数（含 `return`/`yield`）、`try/except` 错误处理 |
-| 标准库   | 起始包含 `this`、`os`、`sys`、`pathlib`，用 Go 实现在 `module/` 目录                |
+| 标准库   | 起始包含 `this`、`os`、`sys`、`pathlib`，并按需追加 `math`、`threading`、`subprocess`，用 Go 实现在 `module/` 目录                |
 | 字符串   | 实现 f-string（`f""`）、原始字符串（`r""`）以及 `"%..."` 百分号格式化               |
 | 表达式   | 实现 `lambda` 匿名函数与三元运算符 `a if cond else b`                               |
 | 推导式   | 实现列表/集合/字典推导式与生成器表达式 `(...)`                                      |
@@ -362,7 +362,7 @@ typeerror: f() takes 2 positional arguments but 3 were given
 
 模块查找分为三个层级，按顺序命中即返回：
 
-1. **标准库**：`gpython/module` 包。`module/` 目录下每个 Go 文件对应一个标准库模块，文件内 `func init()` 把模块登记进 `module` 包的注册表；`main.go` 用 `import _ "gpython/module"` 触发全量编译与注册。起始标准库：`this`、`os`、`sys`、`pathlib`，并按需追加 `math`（`demo.py` 所需）。
+1. **标准库**：`gpython/module` 包。`module/` 目录下每个 Go 文件对应一个标准库模块，文件内 `func init()` 把模块登记进 `module` 包的注册表；`main.go` 用 `import _ "gpython/module"` 触发全量编译与注册。起始标准库：`this`、`os`、`sys`、`pathlib`，并按需追加 `math`、`threading`、`subprocess`（`demo.py` 所需）。
 2. **项目依赖**：`gpython_modules/` 目录下的 `.py` 文件。直接读取源码执行，不需要重新编译解释器；该目录已在 `.gitignore` 中忽略。
 3. **项目本身**：与 CPython 相同的本地导入机制，查找当前脚本所在目录、当前工作目录（以及可选的 `GPYTHONPATH`）。
 
@@ -622,7 +622,7 @@ go run . demo.py arg1    # 脚本参数进入 sys.argv
 
 验收脚本至少覆盖：
 
-1. 三级导入：标准库（`module/` 下的 `this`/`os`/`sys`/`pathlib`）、`gpython_modules/` 下的 `.py` 依赖、脚本目录/工作目录下的本地 `.py`。
+1. 三级导入：标准库（`module/` 下的 `this`/`os`/`sys`/`pathlib`/`math`/`threading`/`subprocess`）、`gpython_modules/` 下的 `.py` 依赖、脚本目录/工作目录下的本地 `.py`。
 2. 带默认参数、`*args`、`**kwargs` 的函数及递归，`return` 与 `yield` 生成器（含 `for` 迭代、`next()`、`StopIteration`）。
 3. 单继承、多继承基础、`__init__`、实例属性、方法调用、`super()`。
 4. 自定义异常 + `try/except/else/finally` + 裸 `except` + 元组异常 + `raise ... from`。
