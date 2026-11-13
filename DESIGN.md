@@ -8,22 +8,22 @@
 
 ## 1. 项目目标与硬性约束
 
-| 项目     | 内容                                                                                |
-| -------- | ----------------------------------------------------------------------------------- |
-| 目标     | 一个 simple and limited 的 Python 3.14 解释器                                       |
-| 语言     | Go（`go 1.26.8`）                                                                   |
-| 解析器   | `github.com/tamnd/gopapy/v2`（`parser2`）                                           |
-| CGO      | 不使用，必须能在 `CGO_ENABLED=0` 下构建                                             |
-| 运行方式 | 解释执行（遍历 AST，不生成 Go 代码、不编译成字节码）                                |
-| 入口     | `main.go`                                                                           |
-| 启动命令 | `go run .`                                                                          |
-| 必须实现 | `import` 导入、`class` 类、`def` 函数（含 `return`/`yield`）、`try/except` 错误处理 |
-| 标准库   | 起始包含 `this`、`os`、`sys`、`pathlib`，并按需追加 `math`、`threading`、`subprocess`，用 Go 实现在 `module/` 目录                |
-| 字符串   | 实现 f-string（`f""`）、原始字符串（`r""`）以及 `"%..."` 百分号格式化               |
-| 表达式   | 实现 `lambda` 匿名函数与三元运算符 `a if cond else b`                               |
-| 推导式   | 实现列表/集合/字典推导式与生成器表达式 `(...)`                                      |
-| async    | 明确不实现 `async`/`await`，解析到就报致命错误并退出，且不可被 `try/except` 捕获    |
-| 错误信息 | 解释器生成的所有错误信息统一使用小写                                                |
+| 项目     | 内容                                                                                                               |
+| -------- | ------------------------------------------------------------------------------------------------------------------ |
+| 目标     | 一个 simple and limited 的 Python 3.14 解释器                                                                      |
+| 语言     | Go（`go 1.26.8`）                                                                                                  |
+| 解析器   | `github.com/tamnd/gopapy/v2`（`parser2`）                                                                          |
+| CGO      | 不使用，必须能在 `CGO_ENABLED=0` 下构建                                                                            |
+| 运行方式 | 解释执行（遍历 AST，不生成 Go 代码、不编译成字节码）                                                               |
+| 入口     | `main.go`                                                                                                          |
+| 启动命令 | `go run .`                                                                                                         |
+| 必须实现 | `import` 导入、`class` 类、`def` 函数（含 `return`/`yield`）、`try/except` 错误处理                                |
+| 标准库   | 起始包含 `this`、`os`、`sys`、`pathlib`，并按需追加 `math`、`threading`、`subprocess`，用 Go 实现在 `module/` 目录 |
+| 字符串   | 实现 f-string（`f""`）、原始字符串（`r""`）以及 `"%..."` 百分号格式化                                              |
+| 表达式   | 实现 `lambda` 匿名函数与三元运算符 `a if cond else b`                                                              |
+| 推导式   | 实现列表/集合/字典推导式与生成器表达式 `(...)`                                                                     |
+| async    | 明确不实现 `async`/`await`，解析到就报致命错误并退出，且不可被 `try/except` 捕获                                   |
+| 错误信息 | 解释器生成的所有错误信息统一使用小写                                                                               |
 
 “simple and limited” 的含义：优先保证上述四类语法和常见程序可运行，不追求完整 CPython 兼容；不实现 async、元类、描述符等高级特性，遇到不支持的特性给出明确的小写错误。并发由 Go 的 goroutine 承担，不引入 Python 的 async/await 模型。
 
